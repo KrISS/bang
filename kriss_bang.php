@@ -2219,7 +2219,7 @@ function config($app){
     'visibility', [['inArray', [['protected', 'private']], '"protected" or "private"']],
    ]],
    ['setConstraints', [
-    'auth', [['inArray', [['', 'authSession', 'authBasic']], '"authSession", "authBasic" or empty: ""']],
+    'auth', [['inArray', [['', 'authSession']], '"authSession" or empty: ""']],
    ]],
   ],
  ];
