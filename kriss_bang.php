@@ -1,4 +1,7 @@
 <?php
+// KrISS bang: a simple and smart (or stupid) bang manager
+// Copyleft (ɔ) - Tontof - http://tontof.net
+// use KrISS bang at your own risk
 trait ArrayModelTrait {
  public function count($criteria = []){return empty($criteria)?count($this->data):count($this->findBy($criteria));}
  public function getData(){return $this->data;}

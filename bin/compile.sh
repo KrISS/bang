@@ -1,7 +1,7 @@
 echo '<!php' > ../kriss_bang.php
-echo '// KrISS bang: a simple and smart (or stupid) bang manager' >> ../kriss_bang.php
-echo '// Copyleft (ɔ) - Tontof - http://tontof.net' >> ../kriss_bang.php
-echo '// use KrISS bang at your own risk' >> ../kriss_bang.php
+echo '#### KrISS bang: a simple and smart (or stupid) bang manager' >> ../kriss_bang.php
+echo '#### Copyleft (ɔ) - Tontof - http://tontof.net' >> ../kriss_bang.php
+echo '#### use KrISS bang at your own risk' >> ../kriss_bang.php
 
 cat ../../mvvm/Kriss/Core/Model/ArrayModelTrait.php >> ../kriss_bang.php
 cat ../../mvvm/Kriss/Core/Model/ArrayModel.php >> ../kriss_bang.php
@@ -63,6 +63,7 @@ sed -i -e 's#//.*##g' ../kriss_bang.php
 sed -i -e 's#dotslashslash#://#g' ../kriss_bang.php
 sed -i -e 's#quoteslashslash#"//#g' ../kriss_bang.php
 sed -i -e 's:include.*::g' ../kriss_bang.php
+sed -i -e 's:####://:g' ../kriss_bang.php
 
 sed -i -e 's/AuthenticationInterface::authenticationSuccess/1/g' ../kriss_bang.php
 sed -i -e 's/AuthenticationInterface::alreadyAuthenticated/2/g' ../kriss_bang.php
