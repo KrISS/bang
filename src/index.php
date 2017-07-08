@@ -113,8 +113,9 @@ $container->set('Router', [
     <style>body{text-align:center}</style>
   </head>
   <body onload="document.bang.bang.focus();">
-    <header><a href="$indexUrl"><img src="$faviconUrl"/></a></header>
+    <header><a href="$indexUrl"><img src="$faviconUrl" alt="favicon"/></a></header>
     <section>
+      <h1>KrISS bang</h1>
       <form action="$indexUrl" method="GET" name="bang"><input name="bang" type="text" tabindex="1"><input type="submit" value="bang"></form> 
       <a href="$bangListUrl">Bang list</a><br>
       <form action="$bangListUrl" method="GET" name="search"><input name="search" type="text" tabindex="2"><input type="submit" value="search for bang"></form> 
@@ -177,14 +178,16 @@ xml;
     <style>body{text-align:center}</style>
   </head>
   <body>
-    <header><a href="$indexUrl"><img src="$faviconUrl"/></a></header>
+    <header><a href="$indexUrl"><img src="$faviconUrl" alt="favicon"/></a></header>
     <section>
+      <h1>Upload a CSV file</h1>
       <form action="$updateCsvUrl" method="POST" enctype="multipart/form-data">
-        <label>Upload a CSV file:<br> <input type="file" name="file-csv"></label><br> 
+        <input type="file" name="file-csv"><br>
         <label><input type="checkbox" name="override"> Check to override existing bang</label><br> 
         <button type="submit">Valider</button>
       </form>
-    <footer><a href="//tontof.net/kriss/bang">KrISS bang</a> - A simple and smart (or stupid) <a href="//duckduckgo.com/bang">bang</a> manager. By <a href="//tontof.net">Tontof</a></footer>
+      <footer><a href="//tontof.net/kriss/bang">KrISS bang</a> - A simple and smart (or stupid) <a href="//duckduckgo.com/bang">bang</a> manager. By <a href="//tontof.net">Tontof</a></footer>
+    </section>
   </body>
 </html>
 html;
