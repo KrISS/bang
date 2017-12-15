@@ -1471,7 +1471,7 @@ xml;
    <form action="$updateCsvUrl" method="POST" enctype="multipart/form-data">
   <input type="file" name="file-csv"><br>
   <label><input type="checkbox" name="override"> Check to override existing bang</label><br> 
-  <button type="submit">Valider</button>
+  <button type="submit">Upload</button>
    </form>
    <footer><a href="//tontof.net/kriss/bang">KrISS bang</a> - A simple and smart (or stupid) <a href="//duckduckgo.com/bang">bang</a> manager. By <a href="//tontof.net">Tontof</a></footer>
  </section>
