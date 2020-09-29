@@ -443,7 +443,13 @@ class FormView{
      if ($method != 'DELETE'){
       foreach($object as $name => $value){
        if ($name != 'id' && $name[0] != '*'){
-        $result .= '<div><label>'.$name.': <input name="'.$name.'" value="'.$value['value'].'" type="'.$value['type'].'"/></label></div>';
+        switch($value['type']){
+        case 'textarea':
+         $result .= '<div><label>'.$name.': <textarea name="'.$name.'">'.$value['value'].'</textarea></label></div>';
+         break;
+        default:
+         $result .= '<div><label>'.$name.': <input name="'.$name.'" value="'.$value['value'].'" type="'.$value['type'].'"/></label></div>';
+        }
        }
       }
      } else {
@@ -523,7 +529,7 @@ class Container{
    $this->setInstance($id, $instance);
    return $instance;
   } else if (class_exists($id)){
-   $instance = new $id(args);
+   $instance = new $id($args);
    $this->setInstance($id, $instance);
    return $instance;
   } else {
@@ -1062,11 +1068,6 @@ class UserProvider{
  public function __construct($userModel){$this->userModel = $userModel;}
  public function loadUser($criteria){return $this->userModel->findOneBy($criteria);}
 }
-class Authorization{
- private $authentication;
- public function __construct($authentication){$this->authentication = $authentication;}
- public function isGranted(){return $this->authentication->isAuthenticated();}
-}
 class SessionAuthentication{
  private $passwordHash;
  private $request;
@@ -1091,10 +1092,10 @@ class SessionAuthentication{
   if ($this->request->getServer('HTTPS','') !== 'on'){
    $ssl = false;
   }
-  session_set_cookie_params($cookie['lifetime'], $cookiedir, $this->request->getServer('HTTP_HOST'), $ssl);
-  ini_set('session.use_cookies', 1);
-  ini_set('session.use_only_cookies', 1);
   if (!session_id()){
+   session_set_cookie_params($cookie['lifetime'], $cookiedir, $this->request->getServer('HTTP_HOST'), $ssl);
+   ini_set('session.use_cookies', 1);
+   ini_set('session.use_only_cookies', 1);
    ini_set('session.use_trans_sid', false);
    if (!empty($this->sessionName)){
     session_name($this->sessionName);
@@ -1276,6 +1277,16 @@ class Validator{
      break;
     case 'inArray':
      if (!in_array($value, $params[0])){
+      $this->errors[$name][] = $error;
+     }
+     break;
+    case 'numMin':
+     if ($value < $params[0]){
+      $this->errors[$name][] = $error;
+     }
+     break;
+    case 'numMax':
+     if ($value > $params[0]){
       $this->errors[$name][] = $error;
      }
      break;
@@ -1724,24 +1735,75 @@ function modelArray($container, $models = []){
  }    
 }
 class RouterAutoFormView{
- private $viewModel;
- private $router;
+ protected $viewModel;
+ protected $router;
  public function __construct($viewModel, $router){
   $this->viewModel = $viewModel;
   $this->router = $router;
  }
- private function stringify($data){
-  $string = ['<ul>'];
-  foreach($data as $key => $item){
-   $attr = '';
-   if (is_object($item) || is_array($item)){
-    $string[] = '<li'.$attr.'>'.$key.': '.$this->stringify($item).'</li>';
-   } else {
-    $string[] = '<li'.$attr.'>'.$key.': '.$item.'</li>';
+ protected function stringify($data){
+  $result = '';
+  if (!empty($data)){
+   $string = ['<ul>'];
+   foreach($data as $key => $item){
+    $attr = '';
+    if (is_object($item) || is_array($item)){
+     $string[] = '<li'.$attr.'>'.$key.': '.$this->stringify($item).'</li>';
+    } else {
+     $string[] = '<li'.$attr.'>'.$key.': '.$item.'</li>';
+    }
+   }
+   $string[] = '</ul>';
+   $result = join('', $string);
+  }
+  return $result;
+ }
+ protected function renderName($name, $value){
+  $result = '';
+  if ($name != 'id' && $name[0] != '*'){
+   $attrs = '';
+   $label = $name;
+   if (isset($value['attrs'])){
+    foreach($value['attrs'] as $key => $val){
+     $attrs .= ' '.$key.'="'.$val.'"';
+    }
+   }
+   if (isset($value['label'])){
+    $label = $value['label'];
+   }   
+   switch($value['type']){
+   case 'textarea':
+    $result = '<div><label>'.$label.': <br><textarea name="'.$name.'"'.$attrs.'>'.$value['value'].'</textarea></label></div>';
+    break;
+   default:
+    $result = '<div><label>'.$label.': <input name="'.$name.'" value="'.$value['value'].'" type="'.$value['type'].'"'.$attrs.'/></label></div>';
    }
   }
-  $string[] = '</ul>';
-  return join('', $string);
+  return $result;
+ }
+ protected function renderForm($slug, $object){
+  $method = $object['*']['method'];
+  $url = $object['*']['action'];
+  $result = '<form action="'.$url.'" id="'.$slug.'" method="'.$method.'">';
+  if (isset($object['_method']['value'])) $method = $object['_method']['value'];
+  if ($method != 'DELETE'){
+   foreach($object as $name => $value){
+    $result .= $this->renderName($name, $value);
+   }
+  } else {
+   foreach($object as $name => $value){
+    if ($name != 'id' && $name[0] != '*'){
+     if ($name === '_method'){
+      $result .= '<input name="'.$name.'" value="'.$value['value'].'" type="'.$value['type'].'"/>';
+     } else {
+      $result .= '<div>'.$name.': '.$value['value'].'</div>';
+     }
+    }
+   }
+  }
+  $result .= '<input type="submit" value="'.$method.'"/>';
+  $result .= '</form>';
+  return $result;
  }
  public function render(){
   $result = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>KrISS MVVM</title></head><body>';
@@ -1752,30 +1814,10 @@ class RouterAutoFormView{
   if (!is_null($data)){
    foreach($data as $slug => $object){
     $result .= '<ul><li><a href="'.$this->router->generate('autoroute_index', ['slug' => $slug]).'">'.$slug.'</a></li></ul>';
+   }
+   foreach($data as $slug => $object){
     if (!is_null($object)){
-     $method = $object['*']['method'];
-     $url = $object['*']['action'];
-     $result .= '<form action="'.$url.'" id="'.$slug.'" method="'.$method.'">';
-     if (isset($object['_method']['value'])) $method = $object['_method']['value'];
-     if ($method != 'DELETE'){
-      foreach($object as $name => $value){
-       if ($name != 'id' && $name[0] != '*'){
-        $result .= '<div><label>'.$name.': <input name="'.$name.'" value="'.$value['value'].'" type="'.$value['type'].'"/></label></div>';
-       }
-      }
-     } else {
-      foreach($object as $name => $value){
-       if ($name != 'id' && $name[0] != '*'){
-        if ($name === '_method'){
-         $result .= '<input name="'.$name.'" value="'.$value['value'].'" type="'.$value['type'].'"/>';
-        } else {
-         $result .= '<div>'.$name.': '.$value['value'].'</div>';
-        }
-       }
-      }
-     }
-     $result .= '<input type="submit" value="'.$method.'"/>';
-     $result .= '</form>';
+     $result .= $this->renderForm($slug, $object);
     }
    }
   }
@@ -2228,14 +2270,16 @@ function config($app){
  ];
  $container->set('#config_create_validator', $configValidator);
  $container->set('#config_update_validator', $configValidator);
- $container->set('Authorization', [
-  'instanceOf' => ''.ucfirst($config->visibility).'RequestAuthorization',
-  'shared' => true,
-  'constructParams' => [
-   ['instance' => 'Authentication'],
-   ['instance' => 'Request'],
-  ]
- ]);
+ if (!$container->has('Authorization')){
+  $container->set('Authorization', [
+   'instanceOf' => ''.ucfirst($config->visibility).'RequestAuthorization',
+   'shared' => true,
+   'constructParams' => [
+    ['instance' => 'Authentication'],
+    ['instance' => 'Request'],
+   ]
+  ]);
+ }
 }
 config($app);
 $app->configPlugin('routerAuto', [['admin' => 'Admin', 'config' => 'Config'], ['bang' => 'Bang']]);

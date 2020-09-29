@@ -35,7 +35,7 @@ cat ../../mvvm/Kriss/Core/Controller/ListController.php >> ../kriss_bang.php
 cat ../../mvvm/Kriss/Core/Form/Form.php >> ../kriss_bang.php
 cat ../../mvvm/Kriss/Core/Auth/BasicAuthentication.php >> ../kriss_bang.php
 cat ../../mvvm/Kriss/Core/Auth/UserProvider.php >> ../kriss_bang.php
-cat ../../mvvm/Kriss/Core/Auth/Authorization.php >> ../kriss_bang.php
+# cat ../../mvvm/Kriss/Core/Auth/Authorization.php >> ../kriss_bang.php
 cat ../../mvvm/Kriss/Core/Auth/SessionAuthentication.php >> ../kriss_bang.php
 cat ../../mvvm/Kriss/Core/Auth/PrivateRequestAuthorization.php >> ../kriss_bang.php
 cat ../../mvvm/Kriss/Core/Auth/ProtectedRequestAuthorization.php >> ../kriss_bang.php
